@@ -1,15 +1,81 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
-generator client {
-  provider = "prisma-client-js"
-  output   = "../generated/prisma"
-}
-
+// Configuración de la conexión a PostgreSQL
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+// Cliente de Prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ───────────────────────────
+// DB Tables
+// ───────────────────────────
+model Usuario {
+  id             Int             @id @default(autoincrement())
+  nombre         String
+  email          String          @unique
+  passwordHash   String
+  fechaCreacion  DateTime        @default(now())
+
+  // Relación con entrenamientos
+  entrenamientos Entrenamiento[]
+
+  // Relación con roles (muchos a muchos)
+  roles          UsuarioRol[]
+}
+
+model Rol {
+  id          Int           @id @default(autoincrement())
+  nombre      String        @unique
+  descripcion String?
+
+  usuarios    UsuarioRol[]
+}
+
+model UsuarioRol {
+  usuarioId Int
+  rolId     Int
+
+  usuario   Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  rol       Rol     @relation(fields: [rolId], references: [id], onDelete: Cascade)
+
+  @@id([usuarioId, rolId])
+}
+
+// ───────────────────────────
+// TABLAS DE ENTRENAMIENTO
+// ───────────────────────────
+model Entrenamiento {
+  id         Int       @id @default(autoincrement())
+  usuarioId  Int
+  fecha      DateTime  @default(now())
+  nombre     String?
+  notas      String?
+
+  usuario    Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  series     Serie[]
+}
+
+model Ejercicio {
+  id            Int       @id @default(autoincrement())
+  nombre        String
+  grupoMuscular String?
+  descripcion   String?
+
+  series        Serie[]
+}
+
+model Serie {
+  id              Int         @id @default(autoincrement())
+  entrenamientoId Int
+  ejercicioId     Int
+  repeticiones    Int
+  peso            Float?
+  tiempo          Float?
+  descanso        Float?
+
+  entrenamiento   Entrenamiento @relation(fields: [entrenamientoId], references: [id], onDelete: Cascade)
+  ejercicio       Ejercicio     @relation(fields: [ejercicioId], references: [id], onDelete: Cascade)
 }
