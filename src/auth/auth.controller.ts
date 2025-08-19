@@ -5,25 +5,32 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
 
+
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private auth: AuthService) {}
+constructor(private auth: AuthService) {}
 
-  @Post('register')
-  register(@Body() dto: RegisterDto) {
-    return this.auth.register(dto);
-  }
 
-  @Post('login')
-  login(@Body() dto: LoginDto) {
-    return this.auth.login(dto.email, dto.password);
-  }
+@Post('register')
+register(@Body() dto: RegisterDto) {
+console.log('[AuthController] POST /auth/register');
+return this.auth.register(dto);
+}
 
-  @Get('me')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  me(@Req() req: any) {
-    return req.user; // devuleve { userId, email, roles }
-  }
+
+@Post('login')
+login(@Body() dto: LoginDto) {
+console.log('[AuthController] POST /auth/login');
+return this.auth.login(dto.email, dto.password);
+}
+
+
+@Get('me')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
+me(@Req() req: any) {
+console.log('[AuthController] GET /auth/me', req.user);
+return req.user; // { userId, email, roles }
+}
 }

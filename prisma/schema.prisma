@@ -1,81 +1,69 @@
-// Configuración de la conexión a PostgreSQL
+
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+provider = "postgresql"
+url = env("DATABASE_URL")
 }
 
-// Cliente de Prisma
+
 generator client {
-  provider = "prisma-client-js"
+provider = "prisma-client-js"
 }
 
-// ───────────────────────────
-// DB Tables
-// ───────────────────────────
-model Usuario {
-  id             Int             @id @default(autoincrement())
-  nombre         String
-  email          String          @unique
-  passwordHash   String
-  fechaCreacion  DateTime        @default(now())
 
-  // Relación con entrenamientos
-  entrenamientos Entrenamiento[]
-
-  // Relación con roles (muchos a muchos)
-  roles          UsuarioRol[]
+model User {
+id Int @id @default(autoincrement())
+email String @unique
+password String
+createdAt DateTime @default(now())
+roles UserRole[]
+workouts Workout[]
 }
 
-model Rol {
-  id          Int           @id @default(autoincrement())
-  nombre      String        @unique
-  descripcion String?
 
-  usuarios    UsuarioRol[]
+model Role {
+id Int @id @default(autoincrement())
+name String @unique
+users UserRole[]
 }
 
-model UsuarioRol {
-  usuarioId Int
-  rolId     Int
 
-  usuario   Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
-  rol       Rol     @relation(fields: [rolId], references: [id], onDelete: Cascade)
-
-  @@id([usuarioId, rolId])
+model UserRole {
+userId Int
+roleId Int
+user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+@@id([userId, roleId])
 }
 
-// ───────────────────────────
-// TABLAS DE ENTRENAMIENTO
-// ───────────────────────────
-model Entrenamiento {
-  id         Int       @id @default(autoincrement())
-  usuarioId  Int
-  fecha      DateTime  @default(now())
-  nombre     String?
-  notas      String?
 
-  usuario    Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
-  series     Serie[]
+model Workout {
+id Int @id @default(autoincrement())
+userId Int
+date DateTime @default(now())
+name String?
+notes String?
+user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+sets Set[]
 }
 
-model Ejercicio {
-  id            Int       @id @default(autoincrement())
-  nombre        String
-  grupoMuscular String?
-  descripcion   String?
 
-  series        Serie[]
+model Exercise {
+id Int @id @default(autoincrement())
+name String @unique
+muscleGroup String?
+description String?
+sets Set[]
 }
 
-model Serie {
-  id              Int         @id @default(autoincrement())
-  entrenamientoId Int
-  ejercicioId     Int
-  repeticiones    Int
-  peso            Float?
-  tiempo          Float?
-  descanso        Float?
 
-  entrenamiento   Entrenamiento @relation(fields: [entrenamientoId], references: [id], onDelete: Cascade)
-  ejercicio       Ejercicio     @relation(fields: [ejercicioId], references: [id], onDelete: Cascade)
+model Set {
+id Int @id @default(autoincrement())
+workoutId Int
+exerciseId Int
+reps Int
+weight Float?
+durationSec Int?
+restTimeSec Int?
+workout Workout @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
 }
