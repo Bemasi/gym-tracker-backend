@@ -11,59 +11,59 @@ provider = "prisma-client-js"
 
 
 model User {
-id Int @id @default(autoincrement())
-email String @unique
-password String
-createdAt DateTime @default(now())
-roles UserRole[]
-workouts Workout[]
+    id Int @id @default(autoincrement())
+    email String @unique
+    password String
+    createdAt DateTime @default(now())
+    roles UserRole[]
+    workouts Workout[]
 }
 
 
 model Role {
-id Int @id @default(autoincrement())
-name String @unique
-users UserRole[]
+    id Int @id @default(autoincrement())
+    name String @unique
+    users UserRole[]
 }
 
 
 model UserRole {
-userId Int
-roleId Int
-user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
-@@id([userId, roleId])
+    userId Int
+    roleId Int
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+    @@id([userId, roleId])
 }
 
 
 model Workout {
-id Int @id @default(autoincrement())
-userId Int
-date DateTime @default(now())
-name String?
-notes String?
-user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-sets Set[]
+    id Int @id @default(autoincrement())
+    userId Int
+    date DateTime @default(now())
+    name String?
+    notes String?
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    sets Set[]
 }
 
 
 model Exercise {
-id Int @id @default(autoincrement())
-name String @unique
-muscleGroup String?
-description String?
-sets Set[]
+    id Int @id @default(autoincrement())
+    name String @unique
+    muscleGroup String?
+    description String?
+    sets Set[]
 }
 
 
 model Set {
-id Int @id @default(autoincrement())
-workoutId Int
-exerciseId Int
-reps Int
-weight Float?
-durationSec Int?
-restTimeSec Int?
-workout Workout @relation(fields: [workoutId], references: [id], onDelete: Cascade)
-exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+    id Int @id @default(autoincrement())
+    workoutId Int
+    exerciseId Int
+    reps Int
+    weight Float?
+    durationSec Int?
+    restTimeSec Int?
+    workout Workout @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+    exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
 }
